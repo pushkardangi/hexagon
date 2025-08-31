@@ -6,6 +6,7 @@ import { getRandomPrompt } from "../utils";
 import { FormField, Loader, Radio } from "../components";
 
 import { generateImageApi, uploadImageApi } from "../api/image.api.js";
+import { useApiRefetch } from "../store/useApiRefetch.js";
 
 const CreateImage = () => {
   const [form, setForm] = useState({
@@ -24,6 +25,7 @@ const CreateImage = () => {
 
   const [generatingImg, setGeneratingImg] = useState(false);
   const [savingImg, setSavingImg] = useState(false);
+  const setImageSaved = useApiRefetch((state) => state.setImageSaved);
 
   // Options dynamically change based on selected model (UI)
   const options = {
@@ -128,6 +130,7 @@ const CreateImage = () => {
         return;
       }
 
+      setImageSaved(true);
       setImage((prev) => ({ ...prev, status: "saved" }));
       toast.success("Image saved to gallery", { duration: 4000 });
     } catch (error) {

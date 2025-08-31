@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { saveAs } from "file-saver";
-import { useGalleryImages } from "../hooks";
 import { Download, PlusCircle, PartyPopper, Rocket, CircleAlert, RotateCcw } from "lucide-react";
 
-// import { allImages } from "../constants/assets"; // temp
+import { useGalleryImages } from "../hooks";
+import { useApiRefetch } from "../store";
 
 const getThumbnailUrl = (url) => {
   if (!url) return "";
@@ -25,7 +25,15 @@ const useIsTouchDevice = () => {
 const Gallery = () => {
   const isTouchDevice = useIsTouchDevice();
 
-  const { images, totalImages, hasMoreImages, error, isLoading, page, setPage, mutate } = useGalleryImages();
+  const { images, totalImages, hasMoreImages, error, isLoading = true, page, setPage, mutateGallery } = useGalleryImages();
+  const { imageSaved, setImageSaved } = useApiRefetch();
+
+  useEffect(() => {
+    if (imageSaved) {
+      mutateGallery();
+      setImageSaved(false);
+    }
+  }, [imageSaved, mutateGallery, setImageSaved]);
 
   const handleDownloadImageOffline = async ({ image, prompt }) => {
     const toastId = toast.loading("Starting download...");
@@ -121,7 +129,7 @@ const Gallery = () => {
           <CircleAlert className="w-6 h-6 shrink-0 hidden sm:block" />
           <div>Please check your internet connection or try again later.</div>
           <button
-            onClick={() => mutate()}
+            onClick={() => mutateGallery()}
             className="ml-2 mt-10 sm:mt-0 flex items-center gap-3 text-blue-600 underline hover:text-blue-800"
           >
             Retry <RotateCcw className="w-4 h-4 mt-1 shrink-0" />
