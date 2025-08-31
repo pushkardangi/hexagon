@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { saveAs } from "file-saver";
-import { getSavedImagesApi } from "../api/image.api";
+import { useGalleryImages } from "../hooks";
 import { Download, PlusCircle, PartyPopper, Rocket, CircleAlert, RotateCcw } from "lucide-react";
 
 // import { allImages } from "../constants/assets"; // temp
@@ -23,63 +23,9 @@ const useIsTouchDevice = () => {
 };
 
 const Gallery = () => {
-  const [loading, setLoading] = useState(true); // false
-  const [images, setImages] = useState([]); // allImages
-
-  const [pagination, setPagination] = useState({
-    page: 1,
-    hasMoreImages: true,
-    totalImages: 0,
-    error: false,
-  });
-
   const isTouchDevice = useIsTouchDevice();
 
-  const fetchGalleryImages = async () => {
-    try {
-      const response = await getSavedImagesApi(pagination.page);
-
-      const { data, error } = response || {};
-
-      if (error) {
-        throw new Error(error);
-      }
-
-      const { images, hasMoreImages, totalImages } = data || {};
-
-      if (!Array.isArray(images)) {
-        toast.error("Unexpected response from the server!");
-      }
-
-      setPagination((prev) => ({
-        ...prev,
-        hasMoreImages,
-        totalImages,
-      }));
-
-      setImages((prev) => [...prev, ...images]);
-    } catch (error) {
-      toast.error("Failed to fetch images!");
-      console.error("Error while fetching images:", error);
-      setPagination({
-        page: 0,
-        hasMoreImages: false,
-        totalImages: 0,
-        error: true,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadMoreImages = () => {
-    setPagination((prev) => ({ ...prev, page: prev.page + 1 }));
-  };
-
-  useEffect(() => {
-    if (!pagination.hasMoreImages) return;
-    fetchGalleryImages();
-  }, [pagination.page]);
+  const { images, totalImages, hasMoreImages, error, isLoading, page, setPage, mutate } = useGalleryImages();
 
   const handleDownloadImageOffline = async ({ image, prompt }) => {
     const toastId = toast.loading("Starting download...");
@@ -97,7 +43,6 @@ const Gallery = () => {
       });
 
       saveAs(response.data, `Hexagon - ${prompt}.png`);
-
       toast.success("Download complete!", { id: toastId });
     } catch (error) {
       toast.error("Download failed. Please try again.", { id: toastId });
@@ -111,16 +56,16 @@ const Gallery = () => {
 
       {/* Images Grid */}
       <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 xs:grid-cols-2 grid-cols-1 gap-3">
-        {loading
+        {isLoading && !images.length
           ? Array.from({ length: 12 }).map((_, index) => (
-              <div key={index} className="animate-pulse bg-gray-300 rounded-lg aspect-square w-full h-full"></div>
+              <div key={index} className="animate-pulse bg-gray-300 rounded-lg aspect-square w-full h-full" />
             ))
           : images.map((img, index) => (
               <div key={index} className="relative overflow-hidden rounded-lg bg-gray-200 group">
                 <img
                   src={getThumbnailUrl(img?.image)}
                   alt={img?.prompt}
-                  className={`w-full h-full object-cover aspect-square`}
+                  className="w-full h-full object-cover aspect-square"
                   loading="lazy"
                 />
 
@@ -134,7 +79,6 @@ const Gallery = () => {
                 ) : (
                   <div className="absolute bottom-0 inset-x-0 rounded-md m-2 p-2 bg-white opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex flex-col">
                     <div className="line-clamp-3">{img?.prompt}</div>
-
                     <div className="flex justify-end mt-3">
                       <Download onClick={() => handleDownloadImageOffline(img)} className="w-6 h-6 animate-bounce" />
                     </div>
@@ -144,61 +88,46 @@ const Gallery = () => {
             ))}
       </div>
 
-      {/* show 'load more' button, or end message, or empty gallery message */}
-      <div className={`flex justify-center select-none ${loading || pagination.totalImages ? "md:justify-end" : ""}`}>
-        {pagination.hasMoreImages ? (
+      {/* Load more / end / empty states */}
+      <div className={`flex justify-center select-none ${isLoading || totalImages ? "md:justify-end" : ""}`}>
+        {hasMoreImages ? (
           <button
             className="mt-10 px-4 py-2 font-inter text-white rounded-md bg-custom-blue-3 hover:bg-custom-blue-4 shadow-lg shadow-slate-300 flex gap-2 transition duration-300"
-            onClick={loadMoreImages}
-            disabled={loading} // prevent multiple clicks
+            onClick={() => setPage(page + 1)}
+            disabled={isLoading}
           >
             <PlusCircle className="animate-pulse" /> Load more
           </button>
         ) : (
           <div className="my-4 font-inter flex items-center justify-center gap-3 font-medium text-gray-500">
-            {pagination.totalImages > 4 ? (
+            {totalImages > 4 ? (
               <>
                 <PartyPopper className="w-6 h-6 shrink-0" />
                 <span>You've reached the end!</span>
               </>
-            ) : (
-              (pagination.totalImages =
-                0 && !pagination.error ? (
-                  <>
-                    <span>Looks like your gallery is empty! Start uploading images to see them here</span>
-                    <Rocket className="w-6 h-6 shrink-0 text-gray-600 hidden sm:block" />
-                  </>
-                ) : (
-                  <></>
-                ))
-            )}
+            ) : totalImages === 0 && !error ? (
+              <>
+                <span>Looks like your gallery is empty! Start uploading images to see them here</span>
+                <Rocket className="w-6 h-6 shrink-0 text-gray-600 hidden sm:block" />
+              </>
+            ) : null}
           </div>
         )}
       </div>
 
-      <div>
-        {pagination.error && (
-          <div className="text-red-500 flex sm:flex-row flex-col items-center justify-center gap-3">
-            <CircleAlert className="w-6 h-6 shrink-0 hidden sm:block" />
-            <div>Please check your internet connection or try again later.</div>
-            <button
-              onClick={() => {
-                if (loading) return;
-                setLoading(true);
-                setPagination({
-                  page: 1,
-                  hasMoreImages: true,
-                  totalImages: 0,
-                  error: false,
-                });
-              }}
-              className="ml-2 mt-10 sm:mt-0 flex items-center gap-3 text-blue-600 underline hover:text-blue-800"
-            >
-              Retry <RotateCcw className="w-4 h-4 mt-1 shrink-0" />
-            </button>
-          </div>
-        )}
-      </div>
+      {/* Error State */}
+      {error && (
+        <div className="text-red-500 flex sm:flex-row flex-col items-center justify-center gap-3">
+          <CircleAlert className="w-6 h-6 shrink-0 hidden sm:block" />
+          <div>Please check your internet connection or try again later.</div>
+          <button
+            onClick={() => mutate()}
+            className="ml-2 mt-10 sm:mt-0 flex items-center gap-3 text-blue-600 underline hover:text-blue-800"
+          >
+            Retry <RotateCcw className="w-4 h-4 mt-1 shrink-0" />
+          </button>
+        </div>
+      )}
     </section>
   );
 };

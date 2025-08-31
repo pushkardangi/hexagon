@@ -6,7 +6,9 @@ import {
   requestPasswordReset,
   confirmPasswordReset,
 } from "./auth.api";
+import { generateImageApi, uploadImageApi, getSavedImagesApi, trashImagesApi } from "./image.api";
 import { redeemTheCode } from "./billing.api";
+
 import {
   createRedeemCode,
   getRedeemCodeInfo,
@@ -27,6 +29,10 @@ export {
   logoutUser,
   requestPasswordReset,
   confirmPasswordReset,
+  generateImageApi,
+  uploadImageApi,
+  getSavedImagesApi,
+  trashImagesApi,
   redeemTheCode,
   createRedeemCode,
   getRedeemCodeInfo,
