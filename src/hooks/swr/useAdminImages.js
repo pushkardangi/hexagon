@@ -4,7 +4,6 @@ import { fetchAdminImages } from "../../api";
 const PAGE_SIZE = 50;
 
 export const useAdminGalleryImages = ({ status, prompt, sort }) => {
-  console.log("useAdminGalleryImages params:", { status, prompt, sort });
   const getKey = (pageIndex, previousPageData) => {
     if (previousPageData && previousPageData.pagination && !previousPageData.pagination.hasMore) return null;
 

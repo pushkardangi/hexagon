@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { useInView } from "react-intersection-observer";
 import { BarChart3, Trash2, Edit3 } from "lucide-react";
 
-import { useAdminGalleryImages } from "../../../hooks";
+import { useDebounce, useAdminGalleryImages } from "../../../hooks";
 import ImageCard from "./ImageCard";
 import ImageModal from "./ImageModal";
 
@@ -13,8 +13,13 @@ const ImagesManagement = () => {
   const [selected, setSelected] = useState([]);
   const [activeImage, setActiveImage] = useState(null);
 
-  // hook fetch
-  const { images, isLoading, isError, hasMore, fetchNextPage } = useAdminGalleryImages({ status, prompt, sort });
+  const debouncedPrompt = useDebounce(prompt, 500);
+
+  const { images, isLoading, isError, hasMore, fetchNextPage } = useAdminGalleryImages({
+    status,
+    prompt: debouncedPrompt,
+    sort,
+  });
 
   // infinite scroll
   const { ref } = useInView({

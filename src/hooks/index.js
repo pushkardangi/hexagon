@@ -1,4 +1,5 @@
+import { useDebounce } from "./useDebounce";
 import { useGalleryImages } from "./swr/useGalleryImages";
 import { useAdminGalleryImages } from "./swr/useAdminImages";
 
-export { useGalleryImages, useAdminGalleryImages };
+export { useDebounce, useGalleryImages, useAdminGalleryImages };
