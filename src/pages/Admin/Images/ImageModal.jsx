@@ -1,4 +1,4 @@
-import { X, Trash2 } from "lucide-react";
+import { X, Trash2, Sparkles } from "lucide-react";
 
 const formatDate = (date) => {
   try {
@@ -18,7 +18,7 @@ const ImageModal = ({ image, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="relative bg-white rounded-lg shadow-lg max-w-5xl w-full h-[90vh] flex overflow-hidden">
+      <div className="relative bg-white rounded-lg shadow-lg max-w-4xl w-full h-[90vh] flex overflow-hidden">
         {/* Close button */}
         <button onClick={onClose} className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100 transition">
           <X className="w-5 h-5 text-gray-700" />
@@ -26,7 +26,13 @@ const ImageModal = ({ image, onClose }) => {
 
         {/* Left: Image */}
         <div className="flex-1 bg-gray-100 flex items-center justify-center p-4">
-          <img src={image?.image} alt={image?.prompt} className="max-h-full max-w-full object-contain rounded" />
+          {image?.image ? (
+            <img src={image.image} alt="Generated" className="max-h-full max-w-full object-contain rounded" />
+          ) : (
+            <div className="rounded-lg flex items-center justify-center flex-col gap-2 w-full h-full bg-gray-300">
+              <Sparkles className="w-8 h-8 text-gray-400" />
+            </div>
+          )}
         </div>
 
         {/* Right: Details */}
