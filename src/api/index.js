@@ -8,6 +8,15 @@ import {
 } from "./auth.api";
 import { generateImageApi, uploadImageApi, getSavedImagesApi, trashImagesApi } from "./image.api";
 import { redeemTheCode } from "./billing.api";
+import {
+  fetchAdminImages,
+  bulkUpdateImageStatus,
+  bulkDeleteImages,
+  fetchImageAnalytics,
+  fetchImageById,
+  updateImageStatus,
+  deleteImagePermanently,
+} from "./admin/images.admin.api";
 
 import {
   createRedeemCode,
@@ -34,6 +43,13 @@ export {
   getSavedImagesApi,
   trashImagesApi,
   redeemTheCode,
+  fetchAdminImages,
+  bulkUpdateImageStatus,
+  bulkDeleteImages,
+  fetchImageAnalytics,
+  fetchImageById,
+  updateImageStatus,
+  deleteImagePermanently,
   createRedeemCode,
   getRedeemCodeInfo,
   updateRedeemCode,

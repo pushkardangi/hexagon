@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 const menuItems = [
   { path: "users", label: "User Management" },
   { path: "redeem-codes", label: "Redeem Code Management" },
+  { path: "images", label: "Images Management" },
 ];
 
 export default function AdminLayout() {

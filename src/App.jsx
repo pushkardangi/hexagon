@@ -24,6 +24,7 @@ const WhatsNew = lazy(()=> import("./pages/WhatsNew/WhatsNew"));
 const AdminLayout = lazy(() => import("./layouts/Admin"));
 const UserManagement = lazy(() => import("./pages/Admin/User/UserManagement"));
 const RedeemCodeManagement = lazy(() => import("./pages/Admin/RedeemCode/RedeemCodeManagement"));
+const ImagesManagement = lazy(() => import("./pages/Admin/Images/ImagesManagement"));
 
 const ProtectedRoute = ({ children }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -79,6 +80,7 @@ const App = () => {
             <Route path="/admin" element={<AdminLayout />}>
               <Route path="users" element={<UserManagement />} />
               <Route path="redeem-codes" element={<RedeemCodeManagement />} />
+              <Route path="images" element={<ImagesManagement />} />
             </Route>
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
