@@ -32,7 +32,7 @@ const RedeemCodeManagement = () => {
   }
 
   return (
-    <div>
+    <div className="flex flex-col h-full gap-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex gap-2">
           <select value={filter} onChange={(e) => setFilter(e.target.value)} className="border rounded px-2 py-1">
@@ -66,7 +66,7 @@ const RedeemCodeManagement = () => {
       {isLoading ? (
         <p>Loading codes...</p>
       ) : (
-        <div className="w-full border border-gray-300 max-h-[600px] overflow-y-auto">
+        <div className="w-full border border-gray-300 max-h-full overflow-y-auto">
           {/* Header */}
           <div className="grid grid-cols-[50px,minmax(160px,1fr),minmax(80px,1fr),minmax(140px,1fr),minmax(80px,1fr),minmax(100px,2fr),minmax(150px,2fr)] bg-gray-100 font-semibold sticky top-0 z-10">
             <div className="p-2 border text-center">

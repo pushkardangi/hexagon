@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
-import { useInView } from "react-intersection-observer";
-import { BarChart3, Trash2, Edit3 } from "lucide-react";
+import { BarChart3, Trash2, Edit3, PlusCircle } from "lucide-react";
 
 import { useDebounce, useAdminGalleryImages } from "../../../hooks";
 import ImageCard from "./ImageCard";
@@ -21,15 +20,16 @@ const ImagesManagement = () => {
     sort,
   });
 
-  // infinite scroll
-  const { ref } = useInView({
-    threshold: 0,
-    onChange: (inView) => {
-      if (inView && hasMore && !isLoading) {
-        fetchNextPage();
-      }
-    },
-  });
+  if (isError) {
+    return <div className="text-red-500">Failed to load images. Please try again later.</div>;
+  }
+
+  const loadMoreImages = (e) => {
+    e.stopPropagation();
+    if (hasMore && !isLoading) {
+      fetchNextPage();
+    }
+  };
 
   // handle select toggle
   const toggleSelect = useCallback((id) => {
@@ -47,7 +47,7 @@ const ImagesManagement = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col h-full gap-6">
       {/* Top bar: filters + actions */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         {/* Filters */}
@@ -97,23 +97,30 @@ const ImagesManagement = () => {
       </div>
 
       {/* Gallery grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-10 gap-2">
-        {images.map((img) => (
-          <ImageCard
-            key={img._id}
-            image={img}
-            isSelected={selected.includes(img._id)}
-            toggleSelect={toggleSelect}
-            onClick={() => setActiveImage(img)}
-          />
-        ))}
-      </div>
+      <div className="h-full overflow-y-auto scrollbar-hide space-y-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-10 gap-2">
+          {images.map((img) => (
+            <ImageCard
+              key={img._id}
+              image={img}
+              isSelected={selected.includes(img._id)}
+              toggleSelect={toggleSelect}
+              onClick={() => setActiveImage(img)}
+            />
+          ))}
+        </div>
 
-      {/* Infinite scroll trigger */}
-      <div ref={ref} className="h-10 flex justify-center items-center">
-        {isLoading && <span className="text-gray-500">Loading...</span>}
-        {isError && <span className="text-red-500">Error loading images</span>}
-        {!hasMore && !isLoading && <span className="text-gray-500">No more images</span>}
+        <div className="flex justify-end items-center">
+          {!isLoading && hasMore && (
+            <button
+              className="px-3 py-1.5 font-inter text-white rounded-md bg-custom-blue-3 hover:bg-custom-blue-4 shadow-lg shadow-slate-300 flex gap-2 transition"
+              onClick={loadMoreImages}
+              disabled={isLoading}
+            >
+              <PlusCircle className="animate-pulse" /> Load more
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Modal for full image */}

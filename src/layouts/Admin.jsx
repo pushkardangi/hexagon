@@ -12,7 +12,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <aside className="flex flex-col justify-between bg-white border-r border-gray-200">
         <div>
